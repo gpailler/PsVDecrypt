@@ -7,6 +7,7 @@ using System.Data.SQLite;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using rohankapoor.AutoPrompt;
 
@@ -18,7 +19,7 @@ namespace PsVDecrypt
         private static readonly Hashtable MapCourseNameToCourseTitle = new Hashtable();
         private const int MaxPath = 260;
 
-        internal static void Main(string[] args)
+        internal static async Task Main(string[] args)
         {
             var defaultCoursesDir = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
@@ -91,7 +92,20 @@ namespace PsVDecrypt
             Console.WriteLine("\nStart decrypting the course? (Press any key to continue.)\n");
             Console.ReadKey();
 
-            DecryptCourse(courseFolder, outputFolder);
+            var dstCourseFolder = DecryptCourse(courseFolder, outputFolder);
+            if (dstCourseFolder != null)
+            {
+                Console.WriteLine("\nMerge videos files with subtitles and chapters? (Press any key to continue.)\n");
+                Console.ReadKey();
+
+                var videoTransform = new VideosTransform();
+                if (!videoTransform.ValidateFFmpeg())
+                {
+                    await videoTransform.DownloadFFmpegIfRequiredAsync();
+                }
+
+                videoTransform.ProcessCourse(dstCourseFolder);
+            }
 
             Console.WriteLine("All done.\n\n");
             Console.WriteLine("Press any key to exit.\n");
@@ -123,10 +137,10 @@ namespace PsVDecrypt
             }
         }
 
-        private static void DecryptCourse(string courseSrcDir, string outputFolder)
+        private static string DecryptCourse(string courseSrcDir, string outputFolder)
         {
             var courseName = Path.GetFileName(courseSrcDir);
-            var courseDstDir = Path.Combine(outputFolder, 
+            var courseDstDir = Path.Combine(outputFolder,
                 Regex.Replace(GetCourseTitle(courseName), @"[<>:""/\\|?*]", "_"));
 
             Console.WriteLine("Processing course: " + GetCourseTitle(courseName) + "...");
@@ -160,7 +174,7 @@ namespace PsVDecrypt
             if (dataTable.Rows.Count == 0)
             {
                 Console.WriteLine(" > Error: cannot find course in database.");
-                return;
+                return null;
             }
 
             var hasTranscript = (long)dataTable.Rows[0]["HasTranscript"] == 1;
@@ -238,6 +252,8 @@ namespace PsVDecrypt
                         SaveTranscript(clipItem, clipDst);
                 }
             }
+
+            return courseDstDir;
         }
 
         private static string GetClipDestinationPath(string moduleDstDir, DataRow clipItem)
@@ -295,7 +311,7 @@ namespace PsVDecrypt
 
                 sb.Append(string.Join("\n",
                     ((string)transcriptItem["Text"]).Replace("\r", "").Split('\n')
-                    .Select(text => "- " + text)));
+                    ));
                 sb.Append("\n\n");
             }
 
