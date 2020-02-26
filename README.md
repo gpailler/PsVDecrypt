@@ -1,6 +1,10 @@
-Forked from [KevinWang15/PsVDecrypt](https://github.com/KevinWang15/PsVDecrypt) to add more features.
+[![Build status](https://ci.appveyor.com/api/projects/status/7fyqbkhxnso6610n?svg=true)](https://ci.appveyor.com/project/gpailler/psvdecrypt)
 
 ## Changelog:
+v1.2.1
+- Embed transcripts in video clips.
+- Concatenate all clips in single module videos with chapters.
+
 v1.2.0
 - Allow user to select which course to decrypt.
 - Allow user to specify the following parameters:
@@ -21,7 +25,7 @@ Download the courses with the offline player, then run this tool.
 
 # Windows binary
 
-https://github.com/vckoh/PsVDecrypt/releases
+https://github.com/gpailler/PsVDecrypt/releases
 
 # Disclaimer
 
