@@ -1,0 +1,23 @@
+version: 1.2.1.{build}
+skip_tags: true
+image: Visual Studio 2019
+configuration: Release
+platform: Any CPU
+assembly_info:
+  patch: true
+  file: '**\AssemblyInfo.*'
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'
+before_build:
+- cmd: nuget restore
+build:
+  project: PsVDecrypt.sln
+  verbosity: minimal
+after_build:
+- cmd: 7z a Binaries-%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\bin\Release\* -xr!x86
+test: off
+artifacts:
+- path: Binaries-*.zip
+  name: Artifact
+deploy: off
