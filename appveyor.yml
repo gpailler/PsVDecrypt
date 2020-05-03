@@ -15,7 +15,7 @@ build:
   project: PsVDecrypt.sln
   verbosity: minimal
 after_build:
-- cmd: 7z a Binaries-%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\bin\Release\* -xr!x86
+- cmd: 7z a Binaries-%APPVEYOR_BUILD_VERSION%.zip %APPVEYOR_BUILD_FOLDER%\bin\Release\*
 test: off
 artifacts:
 - path: Binaries-*.zip
